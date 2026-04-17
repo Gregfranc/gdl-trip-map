@@ -22,7 +22,8 @@
 const COLORS = {
   hotel_gdl: '#e63946',
   hotel_tequila: '#d62828',
-  restaurant: '#2a9d8f',
+  rest_visited: '#2a9d8f',
+  rest_target: '#ff6b35',
   bar: '#e9c46a',
   shop: '#14b8a6',
   distillery: '#a855f7',
@@ -33,7 +34,8 @@ const COLORS = {
 const EMOJIS = {
   hotel_gdl: '🏨',
   hotel_tequila: '🛏️',
-  restaurant: '🍽️',
+  rest_visited: '✅',
+  rest_target: '🎯',
   bar: '🍸',
   shop: '🛍️',
   distillery: '🥃',
@@ -62,24 +64,28 @@ const PLACES = [
   { type: 'distillery', name: 'Fortaleza (reservation required)', coords: [20.8878, -103.8313], desc: 'Cult favorite. Traditional tahona method. Sauza family. Small/intimate.' },
 
   // RESTAURANTS
-  { type: 'restaurant', name: '🎯 Alcalde (LA50 #15, priority)', coords: [20.6975, -103.3940], desc: '<b>Latin America\'s 50 Best #15 (2025).</b> Chef Paco Ruano. Upscale modern Mexican. Av. México 2903, Vallarta Norte. 🎂 Rachel birthday dinner candidate. You SKIPPED last trip — book ASAP.' },
-  { type: 'restaurant', name: '🎯 Xokol (heirloom corn tasting menu)', coords: [20.6908, -103.3610], desc: '<b>Tasting menu, 12 courses, ~$100pp.</b> Chefs Óscar Segundo + Xrysw Ruelas Díaz (San Pellegrino Young Chef awardees). Every dish = corn. Menu changes weekly. Calle Ignacio Herrera y Cairo 1392, Santa Teresita. <b>Reserve weeks ahead.</b>' },
-  { type: 'restaurant', name: '🎯 Anita Li (Mexican + SE Asian fusion)', coords: [20.6770, -103.4040], desc: 'Av. Inglaterra 3100, Vallarta Poniente. 1950s house, funky decor, artist/intellectual hangout. Signature: jicama-tortilla tacos, duck, BBQ ribs with mezcal.' },
-  { type: 'restaurant', name: '🎯 Magno Brasserie (French/Italian)', coords: [20.6768, -103.3830], desc: 'Chef Paul Bentley (Australian). French/Italian w/ Mexican elements. Poached asparagus w/ truffle polenta, duck magret w/ smoked apple. Elevated bistro vibe.' },
-  { type: 'restaurant', name: '🎯 Juni-ko (omakase sushi, 15 seats)', coords: [20.7220, -103.4320], desc: 'High-end omakase, 15 seats. Premium Japanese fish, exceptional uni. Paseo Andares, Zapopan. ~25min Uber from Americana — pick a sushi night.' },
-  { type: 'restaurant', name: '🎯 La Postrería (molecular dessert)', coords: [20.6815, -103.3715], desc: 'Colonia Americana. Spanish pastry chef trained at El Bulli, Casa Marcelo, The Fat Duck. Post-dinner destination spot.' },
-  { type: 'restaurant', name: '🎯 Allium (farm-to-table)', coords: [20.7020, -103.3840], desc: 'Providencia. Seasonal heirloom ingredients, artisanal Jalisco cheeses. Quiet & refined.' },
-  { type: 'restaurant', name: '🎯 I Latina (nouveau Mexican)', coords: [20.6780, -103.3980], desc: 'Vallarta Poniente. International technique on Mexican base, sous-vide precision, creative plating. Date-night worthy.' },
-  { type: 'restaurant', name: 'Bruna (upscale Mexican, Lafayette)', coords: [20.6770, -103.3795], desc: 'You went 10/31/24 ($85 charge). Upscale modern Mexican.' },
-  { type: 'restaurant', name: 'Pinocchio Chapultepec (Italian)', coords: [20.6795, -103.3740], desc: 'You went 11/3/24 ($61 charge). Italian, Av. Chapultepec.' },
-  { type: 'restaurant', name: 'La Docena (hip seafood/oysters)', coords: [20.6950, -103.3872], desc: 'You went 11/3/24 ($136 charge — big dinner). @ladocenaoysterbar. Seafood, elevated. Recently added to LA50 Discovery list.' },
-  { type: 'restaurant', name: 'Kasuga (upscale sushi)', coords: [20.6968, -103.3908], desc: '@kasugarest' },
-  { type: 'restaurant', name: 'Zingaro (Italian)', coords: [20.6782, -103.3750], desc: 'You went 11/1/24. @zingaro.guadalajara' },
-  { type: 'restaurant', name: 'Siete y Medio de Paco (casual seafood)', coords: [20.6882, -103.3835], desc: '@sieteymediodepaco' },
-  { type: 'restaurant', name: 'Hato (ramen)', coords: [20.6785, -103.3728], desc: '@hatoramen' },
-  { type: 'restaurant', name: 'Pal Real (coffee + food)', coords: [20.6760, -103.3700], desc: '@palreal' },
-  { type: 'restaurant', name: 'Karmele (bakery)', coords: [20.6802, -103.3720], desc: '@karmele.reposteria' },
-  { type: 'restaurant', name: 'Mutante (inventive)', coords: [20.6795, -103.3770], desc: 'You went 11/2/24. Colonia Americana.' },
+  // NEW TARGETS (not visited — priority this trip)
+  { type: 'rest_target', name: 'Alcalde — LA50 #15 (2025) 🏆', coords: [20.6975, -103.3940], desc: '<b>Food:</b> Upscale modern Mexican · <b>Vibe:</b> Refined, stylish, Rachel-birthday-tier · <b>Chef:</b> Francisco "Paco" Ruano · <b>Lists:</b> LA50 #15 (2025), World\'s 50 Best #51, 50Best Discovery · <b>Neighborhood:</b> Vallarta Norte · 🎂 BIRTHDAY CANDIDATE · <a href="https://restaurantealcalde.com" target="_blank">restaurantealcalde.com</a> · <a href="https://www.instagram.com/restalcalde" target="_blank">@restalcalde</a>' },
+  { type: 'rest_target', name: 'Xokol — heirloom corn tasting (50Best Discovery)', coords: [20.6908, -103.3610], desc: '<b>Food:</b> 12-course tasting menu, all-corn, ~$100pp · <b>Vibe:</b> Intimate (<25 seats), menu changes weekly · <b>Chefs:</b> Óscar Segundo + Xrysw Ruelas Díaz (San Pellegrino Young Chef winners) · <b>Lists:</b> 50Best Discovery · <b>Neighborhood:</b> Santa Teresita · 📅 Reserve WEEKS ahead · <a href="https://www.instagram.com/xokol_" target="_blank">@xokol_</a>' },
+  { type: 'rest_target', name: 'Anita Li — Mexican + SE Asian fusion', coords: [20.6770, -103.4040], desc: '<b>Food:</b> Mexican base w/ Thai + Vietnamese influences · <b>Vibe:</b> 1950s restored house, funky 70s throwback, artist/intellectual hangout · <b>Signature:</b> jicama-tortilla tacos, duck, BBQ ribs w/ mezcal · <b>Neighborhood:</b> Vallarta Poniente · <a href="https://anitali.mx" target="_blank">anitali.mx</a> · <a href="https://www.instagram.com/anitalirest" target="_blank">@anitalirest</a>' },
+  { type: 'rest_target', name: 'Magno Brasserie — French/Italian', coords: [20.6768, -103.3830], desc: '<b>Food:</b> French + Italian w/ Mexican touches · <b>Vibe:</b> Elevated bistro, long-running favorite · <b>Chef:</b> Paul Bentley (Australian) · <b>Signatures:</b> poached asparagus w/ truffle polenta, duck magret w/ smoked apple · <a href="https://www.opentable.com/r/magno-brasserie-guadalajara" target="_blank">OpenTable</a>' },
+  { type: 'rest_target', name: 'Juni-ko — omakase sushi (15 seats)', coords: [20.7220, -103.4320], desc: '<b>Food:</b> Omakase, premium Japanese fish, exceptional uni · <b>Vibe:</b> 15-seat counter, special occasion · <b>Neighborhood:</b> Paseo Andares, Zapopan (~25min Uber from Americana) · Reserve ahead' },
+  { type: 'rest_target', name: 'La Postrería — molecular dessert', coords: [20.6815, -103.3715], desc: '<b>Food:</b> Dessert-only, molecular gastronomy · <b>Vibe:</b> Destination post-dinner stop · <b>Chef:</b> Spanish pastry chef, El Bulli / Casa Marcelo / The Fat Duck training · <b>Neighborhood:</b> Colonia Americana' },
+  { type: 'rest_target', name: 'Allium — farm-to-table', coords: [20.7020, -103.3840], desc: '<b>Food:</b> Seasonal, heirloom ingredients, artisanal Jalisco cheeses · <b>Vibe:</b> Quiet, refined, local-sourced · <b>Neighborhood:</b> Providencia' },
+  { type: 'rest_target', name: 'I Latina — nouveau Mexican', coords: [20.6780, -103.3980], desc: '<b>Food:</b> International technique, Mexican base, sous-vide · <b>Vibe:</b> Creative plating, date-night · <b>Neighborhood:</b> Vallarta Poniente' },
+  { type: 'rest_target', name: 'Kasuga — upscale sushi (not yet visited)', coords: [20.6968, -103.3908], desc: '<b>Food:</b> Upscale Japanese, sushi · <b>Vibe:</b> Refined · <b>Neighborhood:</b> Colonia Americana · <a href="https://www.instagram.com/kasugarest" target="_blank">@kasugarest</a>' },
+  { type: 'rest_target', name: 'Siete y Medio de Paco (Paco Ruano 2nd venue)', coords: [20.6882, -103.3835], desc: '<b>Food:</b> Casual seafood · <b>Vibe:</b> Laid-back sister to Alcalde, same chef (Paco Ruano) · <a href="https://www.instagram.com/sieteymediodepaco" target="_blank">@sieteymediodepaco</a>' },
+  { type: 'rest_target', name: 'Hato — ramen (not yet visited)', coords: [20.6785, -103.3728], desc: '<b>Food:</b> Ramen · <b>Vibe:</b> Casual, late-night · <a href="https://www.instagram.com/hatoramen" target="_blank">@hatoramen</a>' },
+
+  // PRIOR VISITS (Chase 2464 Oct 31–Nov 3, 2024 charges)
+  { type: 'rest_visited', name: 'Bruna — upscale Mexican (50Best Discovery)', coords: [20.6770, -103.3795], desc: '<b>You visited 10/31/24 ($85).</b> Food: contemporary Mexican, wood-fired grill · Chef: Oscar Garza · Vibe: manicured gardens, art gallery, $$$$ · Lists: 50Best Discovery · <a href="https://www.tripadvisor.com/Restaurant_Review-g150798-d10027426-Reviews-Bruna-Guadalajara_Guadalajara_Metropolitan_Area.html" target="_blank">Tripadvisor</a> · <a href="https://www.facebook.com/brunagdl/" target="_blank">Facebook</a>' },
+  { type: 'rest_visited', name: 'La Docena — seafood/oysters (50Best Discovery)', coords: [20.6950, -103.3872], desc: '<b>You visited 11/3/24 ($136).</b> Food: oysters + bivalves, NOLA + Buenos Aires inspiration · Chef: Tomás Bermudez · Vibe: hip seafood bar · Lists: LA50 #42 (2022), 50Best Discovery · <a href="https://www.instagram.com/ladocenaoysterbar" target="_blank">@ladocenaoysterbar</a>' },
+  { type: 'rest_visited', name: 'Mutante — creative/eclectic fusion', coords: [20.6795, -103.3770], desc: '<b>You visited 11/2/24 ($40).</b> Food: casual elegant fusion/eclectic · Vibe: relaxed, nature-surrounded, Colonia Americana · Not on LA50 but strong local foodie rep · <a href="https://www.opentable.com/r/mutante-guadalajara" target="_blank">OpenTable (4.4)</a>' },
+  { type: 'rest_visited', name: 'Zingaro GDL — Italian', coords: [20.6782, -103.3750], desc: '<b>You visited 11/1/24 ($43).</b> Food: pasta + pizza, authentic Italian · Vibe: open 7:30am-11pm, casual · <a href="https://www.instagram.com/zingaro.guadalajara" target="_blank">@zingaro.guadalajara</a>' },
+  { type: 'rest_visited', name: 'Pinocchio Chapultepec — Italian', coords: [20.6795, -103.3740], desc: '<b>You visited 11/3/24 ($61).</b> Food: Italian · Neighborhood: Av. Chapultepec' },
+  { type: 'rest_visited', name: 'Restaurantes Elsa 1910 — Tlaquepaque lunch', coords: [20.6399, -103.3131], desc: '<b>You visited 11/2/24 ($12 lunch stop).</b> Traditional Tlaquepaque food · Small lunch during sourcing day' },
+  { type: 'rest_visited', name: 'Karmele — bakery', coords: [20.6802, -103.3720], desc: 'From your 2024 city guide · Food: artisanal bakery · Hours: Mon-Fri 7:45am-8pm, Sat 8am-3pm · <a href="https://www.instagram.com/karmele.reposteria" target="_blank">@karmele.reposteria</a>' },
+  { type: 'rest_visited', name: 'Pal Real — coffee + food', coords: [20.6760, -103.3700], desc: 'From your 2024 city guide · Food: hip coffee + brunch · Hours: 8am-6pm daily · <a href="https://www.instagram.com/palreal" target="_blank">@palreal</a>' },
 
   // BARS
   { type: 'bar', name: "Gallo Altanero (World's 50 Best Bars)", coords: [20.6830, -103.3780], desc: 'You went 11/1/24. @elgalloaltanero' },
@@ -170,8 +176,9 @@ map.fitBounds(allCoords, { padding: [30, 30] });
 const overlays = {
   '🏘️ Neighborhoods': zoneLayer,
   '🏨 GDL Hotels': layers.hotel_gdl,
-  '🏨 Tequila Hotels': layers.hotel_tequila,
-  '🍽️ Restaurants': layers.restaurant,
+  '🛏️ Tequila Hotels': layers.hotel_tequila,
+  '✅ Restaurants (visited)': layers.rest_visited,
+  '🎯 Restaurants (target)': layers.rest_target,
   '🍸 Bars': layers.bar,
   '🛍️ Shopping': layers.shop,
   '🥃 Distilleries': layers.distillery,
@@ -188,7 +195,8 @@ legend.onAdd = () => {
     <h3>Trip Map — May 13-20</h3>
     <div>🏨 <span style="color:${COLORS.hotel_gdl}">●</span> GDL Hotels (5 nts)</div>
     <div>🛏️ <span style="color:${COLORS.hotel_tequila}">●</span> Tequila Hotels (2 nts)</div>
-    <div>🍽️ <span style="color:${COLORS.restaurant}">●</span> Restaurants</div>
+    <div>✅ <span style="color:${COLORS.rest_visited}">●</span> Restaurants (visited Nov '24)</div>
+    <div>🎯 <span style="color:${COLORS.rest_target}">●</span> Restaurants (new targets)</div>
     <div>🍸 <span style="color:${COLORS.bar}">●</span> Bars</div>
     <div>🛍️ <span style="color:${COLORS.shop}">●</span> Shops</div>
     <div>🥃 <span style="color:${COLORS.distillery}">●</span> Distilleries</div>
