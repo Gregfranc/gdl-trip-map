@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Guadalajara + Tequila Trip — May 13-20, 2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  body { margin: 0; font-family: -apple-system, system-ui, sans-serif; }
+  #map { height: 100vh; }
+  .legend { background: white; padding: 10px 14px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 13px; line-height: 1.7; }
+  .legend h3 { margin: 0 0 8px 0; font-size: 14px; }
+  .legend .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: middle; border: 1px solid rgba(0,0,0,0.3); }
+  .popup-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .popup-desc { font-size: 12px; color: #444; max-width: 260px; }
+  .zone-label { background: rgba(255,255,255,0.85); border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; padding: 2px 8px; font-weight: 600; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const COLORS = {
+  hotel_gdl: '#e63946',
+  hotel_tequila: '#d62828',
+  restaurant: '#2a9d8f',
+  bar: '#e9c46a',
+  shop: '#14b8a6',
+  distillery: '#a855f7',
+  culture: '#f97316',
+  district: '#6b7280'
+};
+
+const EMOJIS = {
+  hotel_gdl: '🏨',
+  hotel_tequila: '🛏️',
+  restaurant: '🍽️',
+  bar: '🍸',
+  shop: '🛍️',
+  distillery: '🥃',
+  culture: '🏛️',
+  district: '📍'
+};
+
+const PLACES = [
+  // GUADALAJARA HOTELS — all verified Colonia Americana / Lafayette boutique
+  { type: 'hotel_gdl', name: '★ Casa Habita (where you stayed 10/31-11/02/24)', coords: [20.6755, -103.3810], desc: '<b>Your Nov 2024 hotel.</b> Lerdo de Tejada 2308, Col. Americana. Grupo Habita, 37 rms, Dimore Studio design, Design Hotels / Marriott Bonvoy. $119-199 std / $249-519 suite.<br><a href="https://www.marriott.com/en-us/hotels/gdlds-casa-habita-guadalajara-a-member-of-design-hotels/overview/?arrivalDate=2026-05-13&departureDate=2026-05-18" target="_blank">Book May 13-18 (Marriott)</a> · <a href="https://casahabita.com" target="_blank">casahabita.com</a>' },
+  { type: 'hotel_gdl', name: 'Hotel Demetria (Lafayette) — closest Casa Habita swap', coords: [20.6732, -103.3797], desc: 'Av. de la Paz 2219, Col. Lafayette. 4.5★ design hotel, massive art collection, rooftop pool + sauna. 80 rms. ~$204-218/nt.<br><a href="https://www.booking.com/hotel/mx/demetria.html?checkin=2026-05-13&checkout=2026-05-18" target="_blank">Book May 13-18 (Booking)</a> · <a href="https://hoteldemetria.com" target="_blank">hoteldemetria.com</a>' },
+  { type: 'hotel_gdl', name: 'Villa Ganz (Americana/Lafayette)', coords: [20.6745, -103.3776], desc: 'López Cotilla 1739, Col. Americana. 1930s restored mansion, <b>only 10 rooms</b>, first boutique hotel in GDL. $116-181/nt.<br><a href="https://www.booking.com/hotel/mx/villa-ganz-boutique.html?checkin=2026-05-13&checkout=2026-05-18" target="_blank">Book May 13-18 (Booking)</a> · <a href="http://www.villaganz.com/en/" target="_blank">villaganz.com</a>' },
+  { type: 'hotel_gdl', name: 'The Bellwort (Americana, adults-only, opened 2021)', coords: [20.6756, -103.3805], desc: '<b>Next door to Casa Habita</b> — Lerdo de Tejada 2261. 1967 modernist apartment building reimagined 2021. 32 rms, adults-only, rooftop pool. From $82/nt.<br><a href="https://www.booking.com/hotel/mx/belwort.html?checkin=2026-05-13&checkout=2026-05-18" target="_blank">Book May 13-18 (Booking)</a>' },
+  { type: 'hotel_gdl', name: 'GALA Hotel Boutique (Americana, budget-friendly)', coords: [20.6770, -103.3785], desc: '3.5★ romantic small boutique, walkable to nightlife corridor. ~$140-200/nt. Cheapest of the 5 — good if you want to save for Tequila splurge.<br><a href="https://www.booking.com/searchresults.html?ss=GALA+Hotel+Boutique+Guadalajara&checkin=2026-05-13&checkout=2026-05-18" target="_blank">Book May 13-18 (Booking)</a>' },
+  { type: 'hotel_gdl', name: '(Zona 25-min drive west) Hyatt Regency Andares', coords: [20.7234, -103.4330], desc: 'Corporate, upscale mall district. Amex FHR-eligible. <b>NOT walkable</b> to Americana/Lafayette hip zone — included only for FHR/points optionality.<br><a href="https://www.hyatt.com/hyatt-regency/en-US/gdlrg-hyatt-regency-andares-guadalajara" target="_blank">hyatt.com</a>' },
+
+  // TEQUILA HOTELS
+  { type: 'hotel_tequila', name: '★ Hotel Solar de las Ánimas (on Tequila plaza)', coords: [20.8800, -103.8383], desc: '<b>Top pick.</b> 5★ luxury on main plaza, 9.4/10 rating. Walkable to Cuervo + every restaurant. Rooftop Sky Bar. Live May 18-20: <b>Base Suite $303/nt ($605 total)</b> · <b>Deluxe Suite $399/nt ($799 total)</b>.<br><a href="https://www.booking.com/hotel/mx/solar-de-las-animas.html?checkin=2026-05-18&checkout=2026-05-20&group_adults=2" target="_blank">Book May 18-20</a> · <a href="https://www.solardelasanimas.com" target="_blank">solardelasanimas.com</a>' },
+  { type: 'hotel_tequila', name: 'Matices Hotel de Barricas (barrel rooms, Cofradía distillery)', coords: [20.8754, -103.8300], desc: 'Novelty pick — actual barrel-shaped rooms, agave fields, 10-min walk to plaza. On La Cofradía distillery grounds. 8.8/10. Live May 18-20: <b>Aged Barrel King $266/nt ($533 total)</b>.<br><a href="https://www.booking.com/hotel/mx/boutique-la-cofradia.html?checkin=2026-05-18&checkout=2026-05-20&group_adults=2" target="_blank">Book May 18-20</a> · <a href="https://maticeshotelbarricas.com.mx/en/" target="_blank">maticeshotelbarricas.com.mx</a>' },
+  { type: 'hotel_tequila', name: 'Casa Salles Hotel Boutique (Salles distillery grounds)', coords: [20.8790, -103.8353], desc: 'Quiet luxury, 25 rms, adjacent to working Salles distillery. Tranquility spa. Live May 18-20: <b>from $259/nt ($518 total)</b>.<br><a href="https://www.booking.com/searchresults.html?ss=Casa+Salles+Hotel+Boutique+Tequila&checkin=2026-05-18&checkout=2026-05-20&group_adults=2" target="_blank">Book May 18-20</a> · <a href="https://www.casasalles.com" target="_blank">casasalles.com</a>' },
+  { type: 'hotel_tequila', name: '(skip — off-path) Hacienda El Carmen', coords: [20.8150, -103.9583], desc: 'Colonial hacienda spa, 40 min from GDL. Nice but NOT in Tequila — between GDL and Tequila. Listed for completeness; skip for this trip.<br><a href="https://www.haciendaelcarmen.com.mx" target="_blank">haciendaelcarmen.com.mx</a>' },
+
+  // DISTILLERIES
+  { type: 'distillery', name: 'Casa Herradura', coords: [20.7825, -103.7644], desc: 'Cleanest & prettiest distillery tour. Old hacienda + train from GDL.' },
+  { type: 'distillery', name: 'Mundo Cuervo (Jose Cuervo flagship)', coords: [20.8806, -103.8383], desc: 'Iconic, in Tequila town. Cuervo Express train option from GDL.' },
+  { type: 'distillery', name: 'Fortaleza (reservation required)', coords: [20.8878, -103.8313], desc: 'Cult favorite. Traditional tahona method. Sauza family. Small/intimate.' },
+
+  // RESTAURANTS
+  { type: 'restaurant', name: 'Alcalde (upscale Mexican)', coords: [20.6840, -103.3785], desc: '🎂 Birthday dinner candidate. @restalcalde' },
+  { type: 'restaurant', name: 'La Docena (hip seafood/oysters)', coords: [20.6950, -103.3872], desc: 'You went 11/3/24. @ladocenaoysterbar' },
+  { type: 'restaurant', name: 'Kasuga (upscale sushi)', coords: [20.6968, -103.3908], desc: '@kasugarest' },
+  { type: 'restaurant', name: 'Zingaro (Italian)', coords: [20.6782, -103.3750], desc: 'You went 11/1/24. @zingaro.guadalajara' },
+  { type: 'restaurant', name: 'Siete y Medio de Paco (casual seafood)', coords: [20.6882, -103.3835], desc: '@sieteymediodepaco' },
+  { type: 'restaurant', name: 'Hato (ramen)', coords: [20.6785, -103.3728], desc: '@hatoramen' },
+  { type: 'restaurant', name: 'Pal Real (coffee + food)', coords: [20.6760, -103.3700], desc: '@palreal' },
+  { type: 'restaurant', name: 'Karmele (bakery)', coords: [20.6802, -103.3720], desc: '@karmele.reposteria' },
+  { type: 'restaurant', name: 'Mutante (inventive)', coords: [20.6795, -103.3770], desc: 'You went 11/2/24. Colonia Americana.' },
+
+  // BARS
+  { type: 'bar', name: "Gallo Altanero (World's 50 Best Bars)", coords: [20.6830, -103.3780], desc: 'You went 11/1/24. @elgalloaltanero' },
+  { type: 'bar', name: 'Turbio (natural wines + pizza)', coords: [20.6775, -103.3740], desc: '@ttuurrbbiioo' },
+  { type: 'bar', name: 'Jamaica Records', coords: [20.6790, -103.3760], desc: '@jamaica_records_' },
+  { type: 'bar', name: 'Delao (seafood snacks + drinks)', coords: [20.6810, -103.3755], desc: '@delao_gdl' },
+
+  // SHOPPING
+  { type: 'district', name: '⬛ Tonalá — SOURCING / WHOLESALE ARTISAN', coords: [20.6249, -103.2335], desc: '<b>THE design district you want.</b> Raw artisan town — workshops, tianguis Thu + Sun (Sun is bigger). Ceramics, hand-forged iron, blown glass, unfinished wood furniture. Where you SOURCE. Uber ~25 min from Americana.' },
+  { type: 'district', name: '⬛ Tlaquepaque — CURATED GALLERIES (adjacent to Tonalá)', coords: [20.6399, -103.3131], desc: 'Polished/tourist-forward. Sergio Bustamante showroom, restored haciendas, upscale galleries, lunch. Pair with Tonalá morning. You visited 11/2/24.' },
+  { type: 'shop', name: 'Once Patios (upscale artisan)', coords: [20.6790, -103.3710], desc: '@oncepatios' },
+  { type: 'shop', name: 'Chamula Hecho a Mano', coords: [20.6798, -103.3735], desc: '@chamula.hechoamano' },
+  { type: 'shop', name: 'Casa de Campo Antiques (by appt)', coords: [20.6812, -103.3748], desc: '@casadecampoantiques' },
+  { type: 'shop', name: 'Albergue Transitorio (designer clothing)', coords: [20.6808, -103.3742], desc: '@alberguetransitorio' },
+  { type: 'shop', name: 'Bajo Cata (wine & cheese, by appt)', coords: [20.6770, -103.3708], desc: '@bajocata' },
+  { type: 'shop', name: 'San Juan de Dios Market', coords: [20.6762, -103.3388], desc: 'Largest handcrafts market' },
+
+  // CULTURE
+  { type: 'culture', name: 'Casa ITESO Clavijero (Barragán house)', coords: [20.6880, -103.3850], desc: '@casaitesoclavigero' },
+  { type: 'culture', name: 'Centro Cultural Cabañas (UNESCO, Orozco)', coords: [20.6767, -103.3378], desc: '@museocabanas' },
+  { type: 'culture', name: 'Travesía Cuatro (contemporary art)', coords: [20.6820, -103.3795], desc: '@travesiacuatro' },
+];
+
+const map = L.map('map');
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  maxZoom: 20,
+  subdomains: 'abcd',
+  attribution: '© OpenStreetMap © CARTO'
+}).addTo(map);
+
+// Neighborhood outlines (approximate — based on major bounding streets)
+const NEIGHBORHOODS = [
+  { name: 'Colonia Americana', color: '#e63946',
+    desc: 'Hip/creative core. Bounded ~ Av. México (N), Av. La Paz (S), Av. Chapultepec (W), Av. Federalismo (E).',
+    poly: [[20.6858, -103.3755], [20.6858, -103.3635], [20.6680, -103.3635], [20.6680, -103.3755]] },
+  { name: 'Colonia Lafayette', color: '#f77f00',
+    desc: 'Western part of Americana, more residential/design-forward. Casa Habita, Hotel Demetria, Villa Ganz all here.',
+    poly: [[20.6820, -103.3860], [20.6820, -103.3755], [20.6690, -103.3755], [20.6690, -103.3860]] },
+  { name: 'Providencia', color: '#2a9d8f',
+    desc: 'Upscale residential NW of Americana. Tree-lined, quieter, Country Club adjacent.',
+    poly: [[20.7110, -103.4060], [20.7110, -103.3830], [20.6920, -103.3830], [20.6920, -103.4060]] },
+  { name: 'Zona Centro', color: '#8338ec',
+    desc: 'Historic center — Cathedral, Cabañas, San Juan de Dios market.',
+    poly: [[20.6810, -103.3520], [20.6810, -103.3330], [20.6680, -103.3330], [20.6680, -103.3520]] },
+  { name: 'Tlaquepaque', color: '#6b4226',
+    desc: 'Curated galleries, upscale Mexican crafts, Sergio Bustamante.',
+    poly: [[20.6450, -103.3180], [20.6450, -103.3070], [20.6340, -103.3070], [20.6340, -103.3180]] },
+  { name: 'Tonalá', color: '#ffbe0b',
+    desc: 'Raw sourcing district. Thu + Sun tianguis. Wholesale artisans.',
+    poly: [[20.6340, -103.2410], [20.6340, -103.2260], [20.6170, -103.2260], [20.6170, -103.2410]] },
+];
+
+const zoneLayer = L.layerGroup();
+NEIGHBORHOODS.forEach(n => {
+  L.polygon(n.poly, {
+    color: n.color, weight: 2, opacity: 0.7,
+    fillColor: n.color, fillOpacity: 0.12
+  })
+    .bindTooltip(n.name, { permanent: true, direction: 'center', className: 'zone-label' })
+    .bindPopup(`<div class="popup-title">${n.name}</div><div class="popup-desc">${n.desc}</div>`)
+    .addTo(zoneLayer);
+});
+zoneLayer.addTo(map);
+
+const layers = {};
+Object.keys(COLORS).forEach(t => layers[t] = L.layerGroup().addTo(map));
+
+PLACES.forEach(p => {
+  const color = COLORS[p.type] || '#333';
+  const emoji = EMOJIS[p.type] || '📍';
+  const icon = L.divIcon({
+    className: 'emoji-marker',
+    html: `<div style="background:white; width:30px; height:30px; border-radius:50%; border:3px solid ${color}; box-shadow:0 2px 6px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; font-size:17px; line-height:1;">${emoji}</div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -14]
+  });
+  const m = L.marker(p.coords, { icon })
+    .bindPopup(`<div class="popup-title">${p.name}</div><div class="popup-desc">${p.desc}</div>`);
+  m.addTo(layers[p.type]);
+});
+
+// Fit bounds to show everything
+const allCoords = PLACES.map(p => p.coords);
+map.fitBounds(allCoords, { padding: [30, 30] });
+
+// Layer control
+const overlays = {
+  '🏘️ Neighborhoods': zoneLayer,
+  '🏨 GDL Hotels': layers.hotel_gdl,
+  '🏨 Tequila Hotels': layers.hotel_tequila,
+  '🍽️ Restaurants': layers.restaurant,
+  '🍸 Bars': layers.bar,
+  '🛍️ Shopping': layers.shop,
+  '🥃 Distilleries': layers.distillery,
+  '🏛️ Culture': layers.culture,
+  '📍 Districts': layers.district
+};
+L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+
+// Legend
+const legend = L.control({ position: 'bottomleft' });
+legend.onAdd = () => {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = `
+    <h3>Trip Map — May 13-20</h3>
+    <div>🏨 <span style="color:${COLORS.hotel_gdl}">●</span> GDL Hotels (5 nts)</div>
+    <div>🛏️ <span style="color:${COLORS.hotel_tequila}">●</span> Tequila Hotels (2 nts)</div>
+    <div>🍽️ <span style="color:${COLORS.restaurant}">●</span> Restaurants</div>
+    <div>🍸 <span style="color:${COLORS.bar}">●</span> Bars</div>
+    <div>🛍️ <span style="color:${COLORS.shop}">●</span> Shops</div>
+    <div>🥃 <span style="color:${COLORS.distillery}">●</span> Distilleries</div>
+    <div>🏛️ <span style="color:${COLORS.culture}">●</span> Culture</div>
+    <div>📍 <span style="color:${COLORS.district}">●</span> Districts</div>
+  `;
+  return div;
+};
+legend.addTo(map);
+</script>
+</body>
+</html>
