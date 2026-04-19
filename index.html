@@ -115,11 +115,21 @@ const PLACES = [
 ];
 
 const map = L.map('map');
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+const streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
   maxZoom: 20,
   subdomains: 'abcd',
   attribution: '© OpenStreetMap © CARTO'
 }).addTo(map);
+const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 19,
+  attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+});
+const hybridLabelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+  maxZoom: 20,
+  subdomains: 'abcd',
+  pane: 'shadowPane',
+  attribution: '© OpenStreetMap © CARTO'
+});
 
 // Neighborhood outlines (approximate — based on major bounding streets)
 const NEIGHBORHOODS = [
@@ -178,6 +188,12 @@ const allCoords = PLACES.map(p => p.coords);
 map.fitBounds(allCoords, { padding: [30, 30] });
 
 // Layer control
+const satelliteWithLabels = L.layerGroup([satelliteLayer, hybridLabelsLayer]);
+const baseLayers = {
+  '🗺️ Street': streetLayer,
+  '🛰️ Satellite': satelliteLayer,
+  '🛰️ Satellite + Labels': satelliteWithLabels
+};
 const overlays = {
   '🏘️ Neighborhoods': zoneLayer,
   '🏨 GDL Hotels': layers.hotel_gdl,
@@ -190,7 +206,7 @@ const overlays = {
   '🏛️ Culture': layers.culture,
   '📍 Districts': layers.district
 };
-L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(map);
 
 // Legend
 const legend = L.control({ position: 'bottomleft' });
